@@ -2,6 +2,7 @@ const fs = require('fs');
 const stacks = require('./stacks');
 let moves = fs.readFileSync('./input.txt', 'utf8').split('\n');
 moves.pop();
+moves=moves.slice(10)
 moves = moves.map((s) => s.replace('move ', '').split(' from '));
 moves = moves.map(([n, s]) => [
     parseInt(n),

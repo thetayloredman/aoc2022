@@ -1,19 +1,13 @@
 // manually processed to add underscores this by me (LogN)
 
-let v = `[G] [_] [_] [_] [_] [D] [R] [_] [_]
- [W] [_] [_] [V] [_] [C] [T] [M] [_]
- [L] [_] [_] [P] [Z] [Q] [F] [V] [_]
- [J] [_] [_] [S] [D] [J] [M] [T] [V]
- [B] [_] [M] [H] [L] [Z] [J] [B] [S]
- [R] [C] [T] [C] [T] [R] [D] [R] [D]
- [T] [W] [Z] [T] [P] [B] [B] [H] [P]
- [D] [S] [R] [D] [G] [F] [S] [L] [Q]
-  1   2   3   4   5   6   7   8   9 `
-    .split('\n')
+const fs =require('node:fs');
+
+let v = fs.readFileSync('./input.txt', 'utf8')
+    .split('\n').slice(0,9)
     .map((l) => l.trim());
 v.pop();
 v = v.map((l) =>
-    l
+    l.replace(/ {5}/g, ' [_] ')
         .replace(/[\[\]]/g, '')
         .replace(/ /g, '')
         .split('')
