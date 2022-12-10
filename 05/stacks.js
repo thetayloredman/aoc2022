@@ -1,13 +1,16 @@
 // manually processed to add underscores this by me (LogN)
 
-const fs =require('node:fs');
+const fs = require('node:fs');
 
-let v = fs.readFileSync('./input.txt', 'utf8')
-    .split('\n').slice(0,9)
+let v = fs
+    .readFileSync('./input.txt', 'utf8')
+    .split('\n')
+    .slice(0, 9)
     .map((l) => l.trim());
 v.pop();
 v = v.map((l) =>
-    l.replace(/ {5}/g, ' [_] ')
+    l
+        .replace(/ {5}/g, ' [_] ')
         .replace(/[\[\]]/g, '')
         .replace(/ /g, '')
         .split('')

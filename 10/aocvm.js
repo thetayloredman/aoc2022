@@ -10,7 +10,7 @@ const { EventEmitter } = require('events');
 const split = (array) => array.map((s) => s.split(' '));
 
 // aocvm state is reset on process change
-let x = 0;
+let x = 1;
 let clock = 1;
 
 // clock handling is not performed with a setInterval -- we do not rely on the clock
@@ -21,16 +21,21 @@ let clock = 1;
 const clockEvents = new EventEmitter();
 
 const tick = () => clockEvents.emit('tick', ++clock, x);
+const preTick = () => clockEvents.emit('pretick', clock, x);
 
 const instructions = {
     addx: (value) => {
+        // end the current tick
         tick();
+        // start the second tick
+        preTick();
         x += value;
     },
     noop: () => void 0
 };
 
 function runInstruction(instruction) {
+    preTick();
     instructions[instruction[0]](Number(instruction[1]));
     tick();
 }
