@@ -2,80 +2,57 @@ const fs = require('node:fs');
 let v = fs
     .readFileSync('./input.txt', 'utf8')
     .split('\n\n')
-    .map((x) => x.split('\n'));
-v = v.map(([n, items, op, test, t, f]) => [
-    parseInt(n.split(' ')[1].replace(':', '')),
-    [
-        items
-            .trim()
-            .replace('Starting items: ', '')
-            .split(', ')
-            .map((v) => parseInt(v)),
-        op
-            .trim()
-            .replace('Operation: ', '')
-            .replace('new = old ', '')
-            .split(' '),
-        parseInt(
-            test.trim().replace('Test: ', '').replace('divisible by ', '')
-        ),
-        {
-            t: parseInt(
-                t
-                    .trim()
-                    .replace('If true: ', '')
-                    .replace('throw to monkey ', '')
-            ),
-            f: parseInt(
-                f
-                    .trim()
-                    .replace('If false: ', '')
-                    .replace('throw to monkey ', '')
-            )
-        }
-    ]
-]);
-v = v.map(([n, [items, [os, on], test, { t, f }]]) => [
-    n,
-    { items, op: [os, parseInt(on)], test, res: { t, f } }
-]);
-v = v.map(([n, { items, op, test, res }]) => [
-    n,
-    {
-        items,
-        op: (n) => eval(`${n}${op[0]}${op[1]}`),
+    .map((x) => x.split('\n'))
+    .map(([m, si, op, te, t, f]) => [
+        parseInt(m.replace('Monkey ', '').replace(':', '')),
+        [
+            si
+                .trim()
+                .replace('Starting items: ', '')
+                .split(', ')
+                .map((v) => parseInt(v)),
+            op.trim().replace('Operation: new = ', ''),
+            parseInt(te.trim().replace('Test: divisible by ', '')),
+            {
+                t: parseInt(t.trim().replace('If true: throw to monkey ', '')),
+                f: parseInt(f.trim().replace('If false: throw to monkey ', ''))
+            }
+        ]
+    ])
+    .map(([m, [si, op, test, { t, f }]]) => ({
+        si,
+        op: (old) => eval(op),
         test: (n) => n % test === 0,
-        res
-    }
-]);
-v = v.map(([_, o]) => o);
+        res: { t, f }
+    }));
 
 const relieve = (n) => Math.floor(n / 3);
+const throwTo = (monkeyID, item) => v[monkeyID].si.push(item);
 
-const throwToMonkey = (n, item) => v[n].items.push(item);
+let inspectCounts = [];
 
-function handleTurn(monkeyNum) {
-    let { items, op, test, res } = v[monkeyNum];
-    for (let item of items) {
-        // change worry level
+function runMonkey(monkeyID) {
+    let { si, op, test, res } = v[monkeyID];
+
+    for (let item of si) {
+        inspectCounts[monkeyID] = (inspectCounts[monkeyID] || 0) + 1;
         item = op(item);
-        console.log(item, op.toString())
-        // monkey gets bored
         item = relieve(item);
-        let result = test(item);
-        if (result) throwToMonkey(res.t, item);
-        else throwToMonkey(res.f, item);
+        if (test(item)) throwTo(res.t, item);
+        else throwTo(res.f, item);
     }
-    v[monkeyNum].items = [];
+    v[monkeyID].si = [];
 }
 
-// handle a whole round
-function handleRound() {
+function runRound() {
     for (let i = 0; i < v.length; i++) {
-        handleTurn(i);
+        runMonkey(i);
     }
 }
 
-handleRound()
+for (let i = 0; i < 20; i++) {
+    runRound();
+}
 
-console.log(v);
+let [a, b] = inspectCounts.sort((a, b) => b - a);
+console.log(a * b);
